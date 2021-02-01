@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.Nullable;
+import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,6 +17,7 @@ import java.util.List;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.ui.MainActivity;
 
 public class DbManager extends SQLiteOpenHelper {
 
@@ -37,7 +39,7 @@ public class DbManager extends SQLiteOpenHelper {
     public static final String COLUMN_AMOUNT = "amount";
     public DbManager(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        SQLiteDatabase sqLiteDatabase=this.getWritableDatabase();
+
     }
 
     @Override
@@ -80,7 +82,7 @@ public class DbManager extends SQLiteOpenHelper {
         cv.put(COLUMN_INIT_BAL,account.getBalance());
 
         long insert=db.insert(ACCOUNT_TABLE, null, cv);
-
+        db.close();
         if(insert==-1){
             return false;
         }else{
@@ -105,6 +107,7 @@ public class DbManager extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
         cursor.close();
+        db.close();
 
         return accountList;
 
@@ -127,6 +130,7 @@ public class DbManager extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
         cursor.close();
+        db.close();
 
         return accountList;
 
@@ -166,6 +170,7 @@ public class DbManager extends SQLiteOpenHelper {
         SQLiteDatabase db=this.getWritableDatabase();
         String[] params=new String[]{accountNo};
         long delete=db.delete(ACCOUNT_TABLE,COLUMN_ACCOUNT_NUMBER+"=?",params);
+        db.close();
         if(delete==-1){
             return false;
         }else{
@@ -185,7 +190,6 @@ public class DbManager extends SQLiteOpenHelper {
         cv.put(COLUMN_ACC_HOLDER, account.getAccountHolderName());
         cv.put(COLUMN_INIT_BAL,account.getBalance());
 
-
         String[] params=new String[]{account.getAccountNo()};
         long update=db.update(ACCOUNT_TABLE,cv,COLUMN_ACCOUNT_NUMBER+"=?",params);
         if (update==-1){
@@ -194,7 +198,7 @@ public class DbManager extends SQLiteOpenHelper {
             updated= true;
         }}
         finally {
-
+            db.close();
             return updated;
         }
     }
@@ -209,6 +213,7 @@ public class DbManager extends SQLiteOpenHelper {
         cv.put(COLUMN_AMOUNT, transaction.getAmount());
 
         long insert=db.insert(TRANSACTION_TABLE,COLUMN__ID,cv);
+        db.close();
         if(insert==-1){
             return false;
         }else{
@@ -234,7 +239,8 @@ public class DbManager extends SQLiteOpenHelper {
             cursor.moveToNext();
 
         }
-
+        cursor.close();
+        db.close();
 
         return transactionList;
     }
@@ -256,8 +262,8 @@ public class DbManager extends SQLiteOpenHelper {
             cursor.moveToNext();
 
         }
-
-
+        cursor.close();
+        db.close();
         return transactionList;
     }
 }
