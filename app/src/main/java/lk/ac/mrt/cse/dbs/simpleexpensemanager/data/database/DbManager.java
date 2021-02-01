@@ -33,17 +33,16 @@ public class DbManager extends SQLiteOpenHelper {
     public static final String TRANSACTION_TABLE = "Transactions";
     public static final String COLUMN__ID="_id";
     public static final String COLUMN_DATE = "date";
-
     public static final String COLUMN_EXPENSE_TYPE = "expenseType";
     public static final String COLUMN_AMOUNT = "amount";
     public DbManager(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        //SQLiteDatabase sqLiteDatabase=this.getWritableDatabase();
+        SQLiteDatabase sqLiteDatabase=this.getWritableDatabase();
     }
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.setForeignKeyConstraintsEnabled(true);
+
         String createTableStatement1= "CREATE TABLE " + ACCOUNT_TABLE + " (" +
                 COLUMN_ACCOUNT_NUMBER + " TEXT PRIMARY KEY, " +
                 COLUMN_BANK + " TEXT, " +
@@ -81,7 +80,7 @@ public class DbManager extends SQLiteOpenHelper {
         cv.put(COLUMN_INIT_BAL,account.getBalance());
 
         long insert=db.insert(ACCOUNT_TABLE, null, cv);
-        db.close();
+
         if(insert==-1){
             return false;
         }else{
@@ -96,7 +95,7 @@ public class DbManager extends SQLiteOpenHelper {
         ArrayList<String> accountList = new ArrayList<String>();
         SQLiteDatabase db=this.getReadableDatabase();
 
-        Cursor cursor = db.rawQuery("SELECT * FROM "+TRANSACTION_TABLE+" ;",null);
+        Cursor cursor = db.rawQuery("SELECT * FROM "+ACCOUNT_TABLE+" ;",null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -106,7 +105,7 @@ public class DbManager extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
         cursor.close();
-        db.close();
+
         return accountList;
 
     }
@@ -115,7 +114,7 @@ public class DbManager extends SQLiteOpenHelper {
         ArrayList<Account> accountList = new ArrayList<Account>();
         SQLiteDatabase db=this.getReadableDatabase();
 
-        Cursor cursor = db.rawQuery("SELECT * FROM "+TRANSACTION_TABLE+" ;",null);
+        Cursor cursor = db.rawQuery("SELECT * FROM "+ACCOUNT_TABLE+" ;",null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -128,7 +127,7 @@ public class DbManager extends SQLiteOpenHelper {
             cursor.moveToNext();
         }
         cursor.close();
-        db.close();
+
         return accountList;
 
         }
@@ -142,6 +141,7 @@ public class DbManager extends SQLiteOpenHelper {
         Cursor cursor=db.rawQuery("SELECT * FROM "+ACCOUNT_TABLE+" WHERE accountNo = ?",new String[]{accountNo});
         if(cursor.getCount()==0){
             account=null;
+
         }else{
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -164,7 +164,8 @@ public class DbManager extends SQLiteOpenHelper {
 
     public boolean removeAccount(String accountNo){
         SQLiteDatabase db=this.getWritableDatabase();
-        long delete=db.delete(ACCOUNT_TABLE,COLUMN_ACCOUNT_NUMBER+"=?",new String[]{accountNo});
+        String[] params=new String[]{accountNo};
+        long delete=db.delete(ACCOUNT_TABLE,COLUMN_ACCOUNT_NUMBER+"=?",params);
         if(delete==-1){
             return false;
         }else{
@@ -176,16 +177,13 @@ public class DbManager extends SQLiteOpenHelper {
         SQLiteDatabase db=this.getWritableDatabase();
         ContentValues cv =new ContentValues();
         Boolean updated = false;
-        db.beginTransaction();
+
         try{
 
         cv.put(COLUMN_ACCOUNT_NUMBER,account.getAccountNo());
         cv.put(COLUMN_BANK, account.getBankName());
         cv.put(COLUMN_ACC_HOLDER, account.getAccountHolderName());
-
         cv.put(COLUMN_INIT_BAL,account.getBalance());
-
-
 
 
         String[] params=new String[]{account.getAccountNo()};
@@ -196,7 +194,7 @@ public class DbManager extends SQLiteOpenHelper {
             updated= true;
         }}
         finally {
-            db.endTransaction();
+
             return updated;
         }
     }
@@ -227,17 +225,17 @@ public class DbManager extends SQLiteOpenHelper {
         Cursor cursor=db.rawQuery("SELECT * FROM "+TRANSACTION_TABLE+";", null);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()){
-            Date date=new SimpleDateFormat("yyyy-MM-dd").parse(cursor.getString(cursor.getColumnIndex("date")));
-            String accountNo=cursor.getString(2);
-            ExpenseType expenseType=ExpenseType.valueOf(cursor.getString(3));
-            double amount=cursor.getDouble(4);
+            Date date=new SimpleDateFormat("yyyy-MM-dd").parse(cursor.getString(cursor.getColumnIndex(COLUMN_DATE)));
+            String accountNo=cursor.getString(cursor.getColumnIndex(COLUMN_ACCOUNT_NUMBER));
+            ExpenseType expenseType=ExpenseType.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_EXPENSE_TYPE)));
+            double amount=cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT));
             Transaction transaction=new Transaction(date, accountNo,expenseType,amount);
             transactionList.add(transaction);
             cursor.moveToNext();
 
         }
 
-        db.close();
+
         return transactionList;
     }
 
@@ -249,17 +247,17 @@ public class DbManager extends SQLiteOpenHelper {
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()){
-            Date date=new SimpleDateFormat("yyyy-MM-dd").parse(cursor.getString(cursor.getColumnIndex("date")));
-            String accountNo=cursor.getString(2);
-            ExpenseType expenseType=ExpenseType.valueOf(cursor.getString(3));
-            double amount=cursor.getDouble(4);
+            Date date=new SimpleDateFormat("yyyy-MM-dd").parse(cursor.getString(cursor.getColumnIndex(COLUMN_DATE)));
+            String accountNo=cursor.getString(cursor.getColumnIndex(COLUMN_ACCOUNT_NUMBER));
+            ExpenseType expenseType=ExpenseType.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_EXPENSE_TYPE)));
+            double amount=cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT));
             Transaction transaction=new Transaction(date, accountNo,expenseType,amount);
             transactionList.add(transaction);
             cursor.moveToNext();
 
         }
 
-        db.close();
+
         return transactionList;
     }
 }

@@ -13,61 +13,76 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.database.DbManager;
 
 public class PersistentAccountDAO implements AccountDAO  {
 
-    DbManager databaseHelper;
+    DbManager dbManager;
 
     public PersistentAccountDAO(Context context){
 
-        databaseHelper=new DbManager(context);
+        dbManager=new DbManager(context);
     }
 
     @Override
     public List<String> getAccountNumbersList() {
 
-        List<String> accountNumList=databaseHelper.getAccountNumbersList();
+        List<String> accountNumList=dbManager.getAccountNumbersList();
         return accountNumList;
     }
 
     @Override
     public List<Account> getAccountsList() {
 
-        ArrayList<Account> accountList=databaseHelper.getAccountsList();
+        ArrayList<Account> accountList=dbManager.getAccountsList();
         return accountList;
     }
 
     @Override
     public Account getAccount(String accountNo) throws InvalidAccountException {
+        if(accountNo==null){
+            throw new InvalidAccountException("Please choose an account");
+        }
         Account account;
-        account=databaseHelper.getAccount(accountNo);
+        account=dbManager.getAccount(accountNo);
+        if (account==null){
+            throw new InvalidAccountException("Account Number "+accountNo+ " is not valid!");
+        }
         return account;
     }
 
     @Override
     public void addAccount(Account account) {
-        databaseHelper.addOneAccount(account);
+        dbManager.addOneAccount(account);
 
 
     }
 
     @Override
     public void removeAccount(String accountNo) throws InvalidAccountException {
-        databaseHelper.removeAccount(accountNo);
+        if(accountNo==null){
+            throw new InvalidAccountException("Please choose an account");
+        }
+        this.getAccount(accountNo);
+        dbManager.removeAccount(accountNo);
     }
 
     @Override
     public void updateBalance(String accountNo, ExpenseType expenseType, double amount) throws InvalidAccountException {
-        Account account=databaseHelper.getAccount(accountNo);
+        if(accountNo==null){
+            throw new InvalidAccountException("Please choose an account");
+        }
+        Account account=dbManager.getAccount(accountNo);
         double balance=account.getBalance();
         if(ExpenseType.valueOf("EXPENSE")==expenseType){
             if(balance-amount<0){
-                throw new InvalidAccountException("Insufficient balance ");
+                throw new InvalidAccountException("Insufficient balance. Your balance is Rs."+balance);
             }else{
                 account.setBalance(balance-amount);
+                dbManager.updateAccount(account);
             }
         }
         else if(ExpenseType.valueOf("INCOME")==expenseType){
             account.setBalance(balance+amount);
+            dbManager.updateAccount(account);
         }
-        databaseHelper.updateAccount(account);
+
     }
 
 
