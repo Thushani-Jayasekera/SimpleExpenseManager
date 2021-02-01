@@ -19,7 +19,7 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
 
 public class DbManager extends SQLiteOpenHelper {
 
-    public static final String DATABASE_NAME="expenseMgt.db";
+    public static final String DATABASE_NAME="180273L.db";
     public static final int DATABASE_VERSION=1;
 
 
