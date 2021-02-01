@@ -142,7 +142,8 @@ public class DbManager extends SQLiteOpenHelper {
     public Account getAccount(String accountNo){
         Account account=null;
         SQLiteDatabase db=this.getReadableDatabase();
-        Cursor cursor=db.rawQuery("SELECT * FROM "+ACCOUNT_TABLE+" WHERE accountNo = ?",new String[]{accountNo});
+        String[] params=new String[]{accountNo};
+        Cursor cursor=db.rawQuery("SELECT * FROM "+ACCOUNT_TABLE+" WHERE accountNo = ?",params);
         if(cursor.getCount()==0){
             account=null;
 
